@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<script src="Tone.min.js"></script>
+	<script src="nexusUI.js"></script>
+
+	<style>
+		html, body {
+			width: 100%;
+			height: 100%;
+			/*overflow: hidden;*/
+		}
+
+		div#mainBody {
+			margin-left: 200px;
+			margin-top: 100px;
+		}
+
+		div#sequencer {
+			width: 100%;
+			height: 100%;
+		}
+
+		canvas[nx="matrix"] {
+			width: 1000px;
+			height: 500px;
+		}
+
+		canvas[nx="toggle"] {
+			width: 100px;
+		}
+
+		button {
+			height: 50px;
+			width: 100px;
+			border: none;
+			background-color: #EEEEEE;
+		}
+
+		button:active {
+			background-color: #898989;
+		}
+
+	</style>
+
+</head>
+<body>
+
+<div id="mainBody">
+	<div id="sequencerArea">
+		<canvas nx="matrix" id="hipHopSequencer"></canvas>
+		<canvas nx="matrix" id="houseSequencer"></canvas>
+		<canvas nx="matrix" id="garageSequencer"></canvas>
+		<canvas nx="matrix" id="drumAndBassSequencer"></canvas>
+	</div>
+
+	<canvas nx="toggle"></canvas>
+
+	<select id="drumKitSelection">
+		<option class="drumKitOption" value="0" id="hipHop">Hip Hop</option>
+		<option class="drumKitOption" value="1" id="house">House</option>
+		<option class="drumKitOption" value="2" id="garage">Garage</option>
+		<option class="drumKitOption" value="3" id="drumAndBass">Drum & Bass</option>
+	</select>
+
+	<canvas nx="dial" min="20" max="200"></canvas>
+
+	<!-- <button id="jumpToStartButton">Go Back To Start</button> -->
+	<!-- <button id="resetButton">Reset</button> -->
+
+	<canvas id="jumpToStartButton" nx="button"></canvas>
+	<canvas id="clearButton" nx="button"></canvas>
+
+	<div id="sliders">
+		<canvas class="gainSliders" id="kickSlider" nx="slider"></canvas>
+		<canvas class="gainSliders" id="snareSlider" nx="slider"></canvas>
+		<canvas class="gainSliders" id="clapSlider" nx="slider"></canvas>
+		<canvas class="gainSliders" id="cHatSlider" nx="slider"></canvas>
+		<canvas class="gainSliders" id="oHatSlider" nx="slider"></canvas>
+		<canvas class="gainSliders" id="tomSlider" nx="slider"></canvas>
+		<canvas class="gainSliders" id="perc1Slider" nx="slider"></canvas>
+		<canvas class="gainSliders" id="perc2Slider" nx="slider"></canvas>
+	</div>
+</div>
+
+	<script>
+		var hipHopKit = document.getElementById("hipHop");
+		var houseKit = document.getElementById("house");
+		var garageKit = document.getElementById("garage");
+		var drumAndBassKit = document.getElementById("drumAndBass");
+
+		var clearButton = document.getElementById("clearButton");
+
+		var kickSlider = document.getElementById("kickSlider");
+		var snareSlider = document.getElementById("snareSlider");
+		var clapSlider = document.getElementById("clapSlider");
+		var cHatSlider = document.getElementById("cHatSlider");
+		var oHatSlider = document.getElementById("oHatSlider");
+		var tomSlider = document.getElementById("tomSlider");
+		var perc1Slider = document.getElementById("perc1Slider");
+		var perc2Slider = document.getElementById("perc2Slider");
+
+		// var player[8] = new Array(new Tone.Player("Hip_Hop/Kick.wav"), new Tone.Player("Hip_Hop/Snare.wav"), var clapPlayer = new Tone.Player("Hip_Hop/Clap.wav"), var cHatPlayer = new Tone.Player("Hip_Hop/Closed_Hat.wav"), var oHatPlayer = new Tone.Player("Hip_Hop/Open_Hat.wav"), var tomPlayer = new Tone.Player("Hip_Hop/Tom.wav"), var perc1Player = new Tone.Player("Hip_Hop/Perc_1.wav"), var perc2Player = new Tone.Player("Hip_Hop/Perc_2.wav"));
+
+
+		// this array will store our players 
+		// we later load samples in to them
+		var players = [];
+		for( var counter = 0; counter<8; counter++){
+			players[counter] = new Tone.Player();
+		}
+
+
+		// we have a bunch of different kit samples - all in different folder
+		var kitNames = [
+			"Hip_Hop/",
+			"Drum_And_Bass/"
+		];
+
+		// every sample MUST have the same name, no matter which kit folder it was in
+		var filenames = [
+			"Kick.wav",
+			"Hip_Hop/Snare.wav",
+			"Hip_Hop/Clap.wav",
+		];
+
+
+		var kitNumber = 0; // select the hip-hop kit and load it
+		for( var counter = 0; counter<8; counter++){
+			players[counter].load(kitNames[kitNumber] + filenames[counter]);
+			players[counter].connect(Tone.Master);
+		    players[counter].retrigger = true;
+		}
+	
+
+
+		nx.onload = function() {
+
+			// set up the size (rows and columns) of the sequencer
+			hipHopSequencer.col = 8;
+			hipHopSequencer.row = 8;
+			hipHopSequencer.init();
+
+			houseSequencer.col = 8;
+			houseSequencer.row = 8;
+			houseSequencer.init();
+
+			garageSequencer.col = 8;
+			garageSequencer.row = 8;
+			garageSequencer.init();
+
+			drumAndBassSequencer.col = 8;
+			drumAndBassSequencer.row = 8;
+			drumAndBassSequencer.init();
+
+			// set up colours
+			nx.colorize("accent" , "#898989" );
+
+			// set up the sequence callback
+			hipHopSequencer.on("*", sequencerActions);
+			houseSequencer.on("*", sequencerActions);
+			garageSequencer.on("*", sequencerActions);
+			drumAndBassSequencer.on("*", sequencerActions);
+
+			// set up the on/off button
+			toggle1.on("*", toggleActions);
+
+			// set up the tempo dial
+			dial1.on("*", tempoActions);
+			dial1.responsivity = 0.002;
+
+			clearButton.on("*", clearActions);
+
+			// set up the sliders
+			kickSlider.min = -12;
+			kickSlider.max = 0;
+			kickSlider.val.value = 0;
+			kickSlider.init();
+			kickSlider.on("*", gainSliders);
+
+			snareSlider.min = -12;
+			snareSlider.max = 0;
+			snareSlider.val.value = 0;
+			snareSlider.init();
+			snareSlider.on("*", gainSliders);
+
+			clapSlider.min = -12;
+			clapSlider.max = 0;
+			clapSlider.val.value = 0;
+			clapSlider.init();
+			clapSlider.on("*", gainSliders);
+
+			cHatSlider.min = -12;
+			cHatSlider.max = 0;
+			cHatSlider.val.value = 0;
+			cHatSlider.init();
+			cHatSlider.on("*", gainSliders);
+
+			oHatSlider.min = -12;
+			oHatSlider.max = 0;
+			oHatSlider.val.value = 0;
+			oHatSlider.init();
+			oHatSlider.on("*", gainSliders);
+
+			tomSlider.min = -12;
+			tomSlider.max = 0;
+			tomSlider.val.value = 0;
+			tomSlider.init();
+			tomSlider.on("*", gainSliders);
+
+			perc1Slider.min = -12;
+			perc1Slider.max = 0;
+			perc1Slider.val.value = 0;
+			perc1Slider.init();
+			perc1Slider.on("*", gainSliders);
+
+			perc2Slider.min = -12;
+			perc2Slider.max = 0;
+			perc2Slider.val.value = 0;
+			perc2Slider.init();
+			perc2Slider.on("*", gainSliders);
+		}
+
+		function tempoActions(event) {
+			hipHopSequencer.bpm = dial1.val.value * 2;
+			houseSequencer.bpm = dial1.val.value * 2;
+			garageSequencer.bpm = dial1.val.value * 2;
+			drumAndBassSequencer.bpm = dial1.val.value * 2;
+		}
+
+		function clearActions(event) {
+			for (var c = 0; c < hipHopSequencer.col; c+=1) {
+				for (var r = 0; r < hipHopSequencer.row; r+=1) {
+					hipHopSequencer.matrix[c][r] = 0;
+				}
+			}
+
+			for (c = 0; c < houseSequencer.col; c+=1) {
+				for (r = 0; r < houseSequencer.row; r+=1) {
+					houseSequencer.matrix[c][r] = 0;
+				}
+			}
+
+			for (c = 0; c < garageSequencer.col; c+=1) {
+				for (r = 0; r < garageSequencer.row; r+=1) {
+					garageSequencer.matrix[c][r] = 0;
+				}
+			}
+
+			for (c = 0; c < drumAndBassSequencer.col; c+=1) {
+				for (r = 0; r < drumAndBassSequencer.row; r+=1) {
+					drumAndBassSequencer.matrix[c][r] = 0;
+				}
+			}
+
+			hipHopSequencer.draw();
+			houseSequencer.draw();
+			garageSequencer.draw();
+			drumAndBassSequencer.draw();
+		}
+
+		function sequencerActions(data) {
+			if (data.list != undefined) {
+
+					if (data.list[0] == 1) {
+						kickPlayer.start();
+						houseKickPlayer.start();
+					}
+					if (data.list[1] == 1) {
+						snarePlayer.start();
+					}
+					if (data.list[2] == 1) {
+						clapPlayer.start();
+					}
+					if (data.list[3] == 1) {
+						cHatPlayer.start();
+					}
+					if (data.list[4] == 1) {
+						oHatPlayer.start();
+					}
+					if (data.list[5] == 1) {
+						tomPlayer.start();
+					}
+					if (data.list[6] == 1) {
+						perc1Player.start();
+					}
+					if (data.list[7] == 1) {
+						perc2Player.start();
+					}
+			}
+		}
+
+		function toggleActions(event) {
+			if(event.value == 1) {
+				sequencer.sequence(dial1.val.value);
+			}
+			else {
+				sequencer.stop();
+			}
+		}
+
+		function drumKitActions(event) {
+			if(event.target == hipHopKit) {
+				hipHopSequencer.style.display = "block";
+          		houseSequencer.style.display = "none";
+          		garageSequencer.style.display = "none";
+          		drumAndBassSequencer.style.display = "none";
+			}
+			else if(event.target == houseKit) {
+				hipHopSequencer.style.display = "none";
+          		houseSequencer.style.display = "block";
+          		garageSequencer.style.display = "none";
+          		drumAndBassSequencer.style.display = "none";
+			}
+			else if(event.target == garageKit) {
+				hipHopSequencer.style.display = "none";
+          		houseSequencer.style.display = "none";
+          		garageSequencer.style.display = "block";
+          		drumAndBassSequencer.style.display = "none";
+			}
+			else if(event.target == drumAndBassKit) {
+				hipHopSequencer.style.display = "none";
+          		houseSequencer.style.display = "none";
+          		garageSequencer.style.display = "none";
+          		drumAndBassSequencer.style.display = "block";
+			}
+		}
+
+		var jumpToStartButton = document.getElementById("jumpToStartButton");
+		jumpToStartButton.addEventListener("click", jumpToStartOfSequencer);
+
+		function jumpToStartOfSequencer() {
+			sequencer.jumpToCol(0);
+		}
+		
+		function gainSliders() {
+			kickPlayer.volume.value = kickSlider.val.value;
+			snarePlayer.volume.value = snareSlider.val.value;
+			clapPlayer.volume.value = clapSlider.val.value;
+			cHatPlayer.volume.value = cHatSlider.val.value;
+			oHatPlayer.volume.value = oHatSlider.val.value;
+			tomPlayer.volume.value = tomSlider.val.value;
+			perc1Player.volume.value = perc1Slider.val.value;
+			perc2Player.volume.value = perc2Slider.val.value;
+		}
+
+	</script>
+</body>
+</html>

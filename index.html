@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Drum Sequencer</title>
+
+	<script type="text/javascript" src="Tone.min.js"></script>
+	<script type="text/javascript" src="nexusUI.js"></script>
+	
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+	<h1>Drum Sequencer</h1>
+
+	<div id="sequencerLabels">
+		<div class="label">Kick</div>
+		<div class="label">Snare</div>
+		<div class="label">Clap</div>
+		<div class="label">Closed Hat</div>
+		<div class="label">Open Hat</div>
+		<div class="label">Tom</div>
+		<div class="label">Perc 1</div>
+		<div class="label">Perc 2</div>
+	</div>
+
+	<div id="sequencerArea">
+		<canvas nx="matrix" id="sequencer"></canvas>
+	</div>
+
+<div id="mainBody">
+
+	<div id="controls">
+		<canvas id="startStopBtn" nx="toggle"></canvas>
+		<canvas id="tempoDial" nx="dial" min="20" max="200"></canvas>
+
+		<select id="drumKitSelect">
+			<option value="hipHop">Hip Hop</option>
+			<option value="house">House</option>
+			<option value="garage">Garage</option>
+			<option value="drumAndBass">Drum & Bass</option>
+		</select>
+
+		<div id="buttons">
+			<button id="jumpToStartButton">Go Back To Start</button>
+			<button id="clearButton">Reset</button>
+			<button id="showMixer" class="textChangeBtn" data-text-swap="Hide Mixer">Show Mixer</button>
+			<button id="showFilters" class="textChangeBtn" data-text-swap="Hide Filters">Show Filters</button>
+			<button id="changeFilterSetting" class="textChangeBtn" data-text-swap="High-Pass">Low-Pass</button>
+			<button id="showDistortion" class="textChangeBtn" data-text-swap="Hide Distortion">Show Distortion</button>
+			<button id="showReverb" class="textChangeBtn" data-text-swap="Hide Reverb">Show Reverb</button>
+		</div>
+
+		<div id="mixerSliders">
+			<canvas label="Kick" class="gainSliders" id="kickGainSlider" nx="slider"></canvas>
+			<canvas label="Snare" class="gainSliders" id="snareGainSlider" nx="slider"></canvas>
+			<canvas label="Clap" class="gainSliders" id="clapGainSlider" nx="slider"></canvas>
+			<canvas label="C Hat" class="gainSliders" id="cHatGainSlider" nx="slider"></canvas>
+			<canvas label="O Hat" class="gainSliders" id="oHatGainSlider" nx="slider"></canvas>
+			<canvas label="Tom" class="gainSliders" id="tomGainSlider" nx="slider"></canvas>
+			<canvas label="Perc 1" class="gainSliders" id="perc1GainSlider" nx="slider"></canvas>
+			<canvas label="Perc 2" class="gainSliders" id="perc2GainSlider" nx="slider"></canvas>
+		</div>
+
+		<div id="filterSliders">
+			<canvas label="Kick" class="cutoffSliders" id="kickCutoffSlider" nx="slider"></canvas>
+			<canvas label="Snare" class="cutoffSliders" id="snareCutoffSlider" nx="slider"></canvas>
+			<canvas label="Clap" class="cutoffSliders" id="clapCutoffSlider" nx="slider"></canvas>
+			<canvas label="C Hat" class="cutoffSliders" id="cHatCutoffSlider" nx="slider"></canvas>
+			<canvas label="O Hat" class="cutoffSliders" id="oHatCutoffSlider" nx="slider"></canvas>
+			<canvas label="Tom" class="cutoffSliders" id="tomCutoffSlider" nx="slider"></canvas>
+			<canvas label="Perc 1" class="cutoffSliders" id="perc1CutoffSlider" nx="slider"></canvas>
+			<canvas label="Perc 2" class="cutoffSliders" id="perc2CutoffSlider" nx="slider"></canvas>
+		</div>
+
+		<div id="distortionSliders">
+			<canvas label="Kick" class="dryWetSliders" id="kickDryWetSlider" nx="slider"></canvas>
+			<canvas label="Snare" class="dryWetSliders" id="snareDryWetSlider" nx="slider"></canvas>
+			<canvas label="Clap" class="dryWetSliders" id="clapDryWetSlider" nx="slider"></canvas>
+			<canvas label="C Hat" class="dryWetSliders" id="cHatDryWetSlider" nx="slider"></canvas>
+			<canvas label="O Hat" class="dryWetSliders" id="oHatDryWetSlider" nx="slider"></canvas>
+			<canvas label="Tom" class="dryWetSliders" id="tomDryWetSlider" nx="slider"></canvas>
+			<canvas label="Perc 1" class="dryWetSliders" id="perc1DryWetSlider" nx="slider"></canvas>
+			<canvas label="Perc 2" class="dryWetSliders" id="perc2DryWetSlider" nx="slider"></canvas>
+		</div>
+
+		<div id="reverbSliders">
+			<canvas label="Kick" class="reverbSliders" id="kickReverbSlider" nx="slider"></canvas>
+			<canvas label="Snare" class="reverbSliders" id="snareReverbSlider" nx="slider"></canvas>
+			<canvas label="Clap" class="reverbSliders" id="clapReverbSlider" nx="slider"></canvas>
+			<canvas label="C Hat" class="reverbSliders" id="cHatReverbSlider" nx="slider"></canvas>
+			<canvas label="O Hat" class="reverbSliders" id="oHatReverbSlider" nx="slider"></canvas>
+			<canvas label="Tom" class="reverbSliders" id="tomReverbSlider" nx="slider"></canvas>
+			<canvas label="Perc 1" class="reverbSliders" id="perc1ReverbSlider" nx="slider"></canvas>
+			<canvas label="Perc 2" class="reverbSliders" id="perc2ReverbSlider" nx="slider"></canvas>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript" src="js/initialise.js"></script>
+<script type="text/javascript" src="js/function.js"></script>
+
+<script type="text/javascript">
+	window.onkeydown = function(event) {
+		return !(event.keyCode == 32);
+	}
+</script>
+
+</body>
+</html>
